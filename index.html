@@ -11,7 +11,7 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
     /* 🔵 Color Palette */
@@ -21,7 +21,10 @@
       --text-dark: #1F2937;         
       --soft-white: #FFFFFF;        
       --light-cream: #F7F7F7;       
-      --secondary-navy: #071E2D;  
+      --secondary-navy: #071E2D;
+      /* New fundraising colors */
+      --patreon-red: #FF424D;
+      --bmc-yellow: #FFDD00;
     }
     
     body {
@@ -47,6 +50,11 @@
     .animate-hero {
         opacity: 0; 
         animation: fadeInUp 1s ease-out forwards;
+    }
+    
+    /* Used for gallery fade-in */
+    .fade-in {
+        animation: fadeInUp 0.6s ease-out forwards;
     }
 
     .delay-1 { animation-delay: 0.2s; }
@@ -97,20 +105,6 @@
       box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
     }
 
-    .gallery-img {
-      height: 200px; 
-      width: 100%;
-      object-fit: cover;
-      border-radius: 12px 12px 0 0;
-    }
-    .gallery-item { 
-      padding: 0; 
-      overflow: hidden; 
-      border: 0; 
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08); 
-    }
-
-
     /* --- HERO SECTION --- */
     #home {
       height: 90vh;
@@ -151,6 +145,9 @@
             text-align: left;
         }
     }
+    .section-title-wrap.text-center {
+        align-items: center;
+    }
 
     .section-title {
       font-size: 3rem; 
@@ -170,6 +167,7 @@
       border-radius: 2px;
     }
 
+    /* General Action Button */
     .action-btn {
       padding: 14px 36px;
       text-transform: uppercase;
@@ -182,8 +180,9 @@
       box-shadow: 0 4px 15px rgba(0, 168, 150, 0.4); 
       border: 2px solid transparent;
       cursor: pointer;
+      text-align: center;
+      display: inline-block;
     }
-
     .action-btn:hover {
       background: var(--secondary-navy); 
       color: var(--soft-white); 
@@ -191,6 +190,7 @@
       transform: translateY(-1px);
     }
     
+    /* Secondary Outline Button */
     .secondary-btn {
         border: 2px solid var(--primary-navy); 
         color: var(--primary-navy); 
@@ -200,14 +200,43 @@
     .secondary-btn:hover {
         background: var(--primary-navy); 
         color: var(--soft-white);
+        border-color: var(--primary-navy);
     }
+
+    /* Hero Transparent Button */
     .hero-secondary-btn {
         border: 2px solid var(--soft-white);
         color: var(--soft-white);
     }
     .hero-secondary-btn:hover {
         background: var(--soft-white);
-        color: var(--primary-navy); 
+        color: var(--primary-navy);
+        border-color: var(--soft-white);
+    }
+
+    /* Fundraising Buttons */
+    .patreon-btn {
+        background: var(--patreon-red);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 15px rgba(255, 66, 77, 0.3);
+    }
+    .patreon-btn:hover {
+        background: #E03540;
+        box-shadow: 0 6px 20px rgba(255, 66, 77, 0.5);
+        color: white;
+    }
+
+    .bmc-btn {
+        background: var(--bmc-yellow);
+        color: var(--primary-navy) !important; /* Ensure text is dark */
+        border: none;
+        box-shadow: 0 4px 15px rgba(255, 221, 0, 0.3);
+    }
+    .bmc-btn:hover {
+        background: #E6C800;
+        box-shadow: 0 6px 20px rgba(255, 221, 0, 0.5);
+        color: var(--primary-navy) !important;
     }
     
     /* --- FORMS & VIDEO --- */
@@ -236,9 +265,6 @@
         height: 100%;
     }
     
-    .program-icon-box {
-        box-shadow: 0 4px 15px rgba(10, 43, 66, 0.2);
-    }
     .video-link-card {
         display: flex;
         align-items: center;
@@ -331,7 +357,6 @@
 
   <hr>
   
-<!-- ABOUT -->
 <section id="about" class="py-24 bg-white">
   <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-start">
     <div>
@@ -353,7 +378,6 @@
   </div>
 </section>
 
-<!-- MISSION -->
 <section id="mission" class="py-24 bg-light-cream">
   <div class="max-w-7xl mx-auto px-6">
     <div class="section-title-wrap">
@@ -370,7 +394,6 @@
   </div>
 </section>
 
-<!-- VISION -->
 <section id="vision" class="py-24 bg-white">
   <div class="max-w-7xl mx-auto px-6">
     <div class="section-title-wrap">
@@ -387,7 +410,6 @@
   </div>
 </section>
 
-<!-- CORE VALUES -->
 <section id="values" class="py-24 bg-light-cream">
   <div class="max-w-7xl mx-auto px-6">
     <div class="section-title-wrap">
@@ -410,13 +432,30 @@
         <i class="fa-solid fa-flask text-3xl text-[var(--accent-teal)] mb-2"></i>
         <h4 class="font-bold">Evidence-Based Excellence</h4>
       </div>
-      <!-- Add more values in same format -->
     </div>
   </div>
 </section>
 
-<!-- PROGRAMS -->
-<section id="programs" class="py-24 bg-white">
+<hr>
+
+<section id="strategic-framework" class="py-24 bg-white">
+  <div class="max-w-5xl mx-auto px-6 text-center">
+    <div class="section-title-wrap text-center">
+      <h2 class="section-title">Our Strategic Framework</h2>
+    </div>
+    
+    <figure class="mt-12">
+      <img src="image_0.jfif" alt="TSCA Strategic Framework Chart showing lifespan approach to SCD" class="w-full h-auto rounded-xl shadow-lg mx-auto border border-gray-200">
+      <figcaption class="mt-8 text-xl text-[var(--primary-navy)] font-semibold italic max-w-4xl mx-auto leading-relaxed">
+        "TSCA envisions a future where communities living with sickle cell disease in Africa are empowered across the lifespan from preconception to older adulthood through education, comprehensive care and research."
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<hr>
+
+<section id="programs" class="py-24 bg-light-cream">
   <div class="max-w-7xl mx-auto px-6">
     <div class="section-title-wrap">
       <h2 class="section-title">What We Do</h2>
@@ -446,8 +485,7 @@
   </div>
 </section>
 
-<!-- IMPACT -->
-<section id="impact" class="py-24 bg-light-cream">
+<section id="impact" class="py-24 bg-white">
   <div class="max-w-7xl mx-auto px-6">
     <div class="section-title-wrap">
       <h2 class="section-title">Our Impact</h2>
@@ -476,8 +514,8 @@
     </div>
   </div>
 </section>
-<!-- FAQ SECTION -->
-<section id="faqs" class="py-24 bg-white">
+
+<section id="faqs" class="py-24 bg-light-cream">
   <div class="max-w-7xl mx-auto px-6">
     <div class="section-title-wrap text-center">
       <h2 class="section-title">Sickle Cell FAQs</h2>
@@ -486,86 +524,80 @@
       </p>
     </div>
 
-    <div class="grid md:grid-cols-2 gap-12 mt-12">
-      <!-- FAQ 1 -->
+    <div class="grid md:grid-cols-2 gap-8 mt-12">
       <div class="professional-card p-6">
-        <i class="fa-solid fa-dna text-4xl text-[var(--accent-teal)] mb-4"></i>
-        <h3 class="font-bold text-xl">What is Sickle Cell Disease?</h3>
-        <p class="mt-2 text-sm">
+        <div class="flex items-center mb-4">
+            <i class="fa-solid fa-dna text-3xl text-[var(--accent-teal)] mr-4"></i>
+            <h3 class="font-bold text-xl">What is Sickle Cell Disease?</h3>
+        </div>
+        <p class="text-sm">
           SCD is an inherited blood disorder where red blood cells become rigid, sticky,
           and crescent-shaped due to abnormal hemoglobin (HbS). These cells block blood flow,
           break down early, and cause anemia and pain.
         </p>
       </div>
 
-      <!-- FAQ 2 -->
       <div class="professional-card p-6">
-        <i class="fa-solid fa-heart-pulse text-4xl text-[var(--accent-teal)] mb-4"></i>
-        <h3 class="font-bold text-xl">What are the symptoms?</h3>
-        <p class="mt-2 text-sm">
+        <div class="flex items-center mb-4">
+            <i class="fa-solid fa-heart-pulse text-3xl text-[var(--accent-teal)] mr-4"></i>
+            <h3 class="font-bold text-xl">What are the symptoms?</h3>
+        </div>
+        <p class="text-sm">
           Common symptoms include chronic anemia, pain crises, swelling in hands/feet,
           frequent infections, delayed growth, jaundice, and organ damage.
         </p>
       </div>
 
-      <!-- FAQ 3 -->
       <div class="professional-card p-6">
-        <i class="fa-solid fa-people-arrows text-4xl text-[var(--accent-teal)] mb-4"></i>
-        <h3 class="font-bold text-xl">How is SCD inherited?</h3>
-        <p class="mt-2 text-sm">
+        <div class="flex items-center mb-4">
+            <i class="fa-solid fa-people-arrows text-3xl text-[var(--accent-teal)] mr-4"></i>
+            <h3 class="font-bold text-xl">How is SCD inherited?</h3>
+        </div>
+        <p class="text-sm">
           It follows an autosomal recessive pattern: a child must inherit two sickle genes (SS).
           Carriers (AS) have one normal and one sickle gene. Each pregnancy has a 25% chance of SCD,
           50% chance of trait, and 25% chance of normal.
         </p>
       </div>
 
-      <!-- FAQ 4 -->
       <div class="professional-card p-6">
-        <i class="fa-solid fa-syringe text-4xl text-[var(--accent-teal)] mb-4"></i>
-        <h3 class="font-bold text-xl">Can SCD be cured?</h3>
-        <p class="mt-2 text-sm">
+        <div class="flex items-center mb-4">
+            <i class="fa-solid fa-syringe text-3xl text-[var(--accent-teal)] mr-4"></i>
+            <h3 class="font-bold text-xl">Can SCD be cured?</h3>
+        </div>
+        <p class="text-sm">
           The only potential cure is a bone marrow transplant, most successful in children
           with a matched donor. Gene therapy (e.g., CRISPR-based treatments like Casgevy)
           has recently been approved in some countries.
         </p>
       </div>
 
-      <!-- FAQ 5 -->
       <div class="professional-card p-6">
-        <i class="fa-solid fa-kit-medical text-4xl text-[var(--accent-teal)] mb-4"></i>
-        <h3 class="font-bold text-xl">How is SCD managed?</h3>
-        <p class="mt-2 text-sm">
+        <div class="flex items-center mb-4">
+            <i class="fa-solid fa-kit-medical text-3xl text-[var(--accent-teal)] mr-4"></i>
+            <h3 class="font-bold text-xl">How is SCD managed?</h3>
+        </div>
+        <p class="text-sm">
           Management includes hydroxyurea, pain management, antibiotics, blood transfusions,
           folic acid, vaccinations, and newer drugs like L-glutamine and crizanlizumab.
         </p>
       </div>
 
-      <!-- FAQ 6 -->
       <div class="professional-card p-6">
-        <i class="fa-solid fa-globe-africa text-4xl text-[var(--accent-teal)] mb-4"></i>
-        <h3 class="font-bold text-xl">Who is mainly affected?</h3>
-        <p class="mt-2 text-sm">
+        <div class="flex items-center mb-4">
+            <i class="fa-solid fa-globe-africa text-3xl text-[var(--accent-teal)] mr-4"></i>
+            <h3 class="font-bold text-xl">Who is mainly affected?</h3>
+        </div>
+        <p class="text-sm">
           SCD affects people of African, Mediterranean, Middle Eastern, Indian, and South/Central
           American descent. Sub-Saharan Africa bears the highest burden, with 300,000+ babies born
           annually and high under-5 mortality.
-        </p>
-      </div>
-
-      <!-- FAQ 7 -->
-      <div class="professional-card p-6">
-        <i class="fa-solid fa-shield-heart text-4xl text-[var(--accent-teal)] mb-4"></i>
-        <h3 class="font-bold text-xl">How is SCD prevented?</h3>
-        <p class="mt-2 text-sm">
-          Prevention includes carrier screening, genetic counseling, prenatal testing,
-          newborn screening, penicillin prophylaxis, hydroxyurea therapy, vaccinations,
-          and Trans-Cranial Doppler (TCD) to prevent stroke.
         </p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- GALLERY -->
 <section id="gallery" class="py-24 bg-white">
   <div class="max-w-7xl mx-auto px-6">
     <div class="section-title-wrap text-center">
@@ -575,37 +607,47 @@
       </p>
     </div>
 
-    <div class="grid md:grid-cols-3 gap-8 mt-12">
-      <!-- Existing photos -->
-      <div class="professional-card overflow-hidden">
-        <img src="images/gallary1.jpg" alt="Community screening" class="w-full h-64 object-cover">
+    <div class="grid md:grid-cols-3 gap-8 mt-12" id="gallery-grid">
+      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg">
+        <img src="images/gallary1.jpg" alt="Community screening" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
       </div>
-      <div class="professional-card overflow-hidden">
-        <img src="images/gallary9.jpg" alt="Counseling session" class="w-full h-64 object-cover">
+      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg">
+        <img src="images/gallary9.jpg" alt="Counseling session" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
       </div>
-      <div class="professional-card overflow-hidden">
-        <img src="images/gallary3.jpg" alt="Awareness campaign" class="w-full h-64 object-cover">
+      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg">
+        <img src="images/gallary3.jpg" alt="Awareness campaign" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
+      </div>
+      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg">
+        <img src="images/gallary4.jpg" alt="Training healthcare workers" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
+      </div>
+      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg">
+        <img src="images/gallery5.jpg" alt="Community outreach event" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
+      </div>
+      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg">
+        <img src="images/gallery6.jpg" alt="Children receiving support" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
       </div>
 
-      <!-- New photos -->
-      <div class="professional-card overflow-hidden">
-        <img src="images/gallary4.jpg" alt="Training healthcare workers" class="w-full h-64 object-cover">
+      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg hidden gallery-hidden">
+        <img src="images/field1.jpg" alt="Field activity 1" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
       </div>
-      <div class="professional-card overflow-hidden">
-        <img src="images/gallery5.jpg" alt="Community outreach event" class="w-full h-64 object-cover">
+      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg hidden gallery-hidden">
+        <img src="images/field2.jpg" alt="Field activity 2" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
       </div>
-      <div class="professional-card overflow-hidden">
-        <img src="images/gallery6.jpg" alt="Children receiving support" class="w-full h-64 object-cover">
+      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg hidden gallery-hidden">
+        <img src="images/field3.jpg" alt="Field activity 3" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
       </div>
-      <div class="professional-card overflow-hidden">
-        <img src="images/gallery7.jpg" alt="Volunteer team" class="w-full h-64 object-cover">
+      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg hidden gallery-hidden">
+        <img src="images/field4.jpg" alt="Field activity 4" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
       </div>
-      <div class="professional-card overflow-hidden">
-        <img src="images/gallery8.jpg" alt="Educational workshop" class="w-full h-64 object-cover">
+      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg hidden gallery-hidden">
+        <img src="images/field5.jpg" alt="Field activity 5" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
       </div>
-      <div class="professional-card overflow-hidden">
-        <img src="images/gallary18.jpg" alt="Community celebration" class="w-full h-64 object-cover">
-      </div>
+    </div>
+    
+    <div class="text-center mt-12">
+        <button id="loadMoreBtn" class="action-btn secondary-btn hover:bg-[var(--primary-navy)] hover:text-white">
+            LOAD MORE PHOTOS
+        </button>
     </div>
   </div>
 </section>
@@ -613,7 +655,7 @@
 
   <hr>
 
-  <section id="videos" class="py-24 md:py-32">
+  <section id="videos" class="py-24 md:py-32 bg-light-cream">
     <div class="max-w-7xl mx-auto px-6">
         <div class="section-title-wrap">
             <h2 class="section-title">Our Story on Film</h2>
@@ -629,28 +671,24 @@
                       allowfullscreen 
                       loading="lazy"></iframe>
                 </div>
-                <h3 class="mt-6 text-3xl font-extrabold text-[var(--primary-navy)]">FEATURED DOCUMENTARY: A WARRIOR'S JOURNEY</h3>
+                <h3 class="mt-6 text-2xl md:text-3xl font-extrabold text-[var(--primary-navy)]">FEATURED DOCUMENTARY: A WARRIOR'S JOURNEY</h3>
                 <p class="mt-3 text-lg text-[var(--text-dark)]">
                     Watch our in-depth documentary showcasing the daily challenges faced by sickle cell warriors and the transformative impact of TSCA's programs in Northern Uganda.
                 </p>
-                <a href="https://www.youtube.com/@tsck256/videos" target="_blank" class="action-btn text-sm mt-6 inline-block secondary-btn hover:text-white">
-                    VIEW ALL VIDEOS
-                </a>
             </div>
 
             <div class="lg:col-span-1 space-y-4">
                 <h4 class="text-xl font-bold text-[var(--accent-teal)] border-b pb-2 mb-3">Other Highlights</h4>
-                <a href="https://www.youtube.com/watch?v=nVeBYKLWiUc" target="_blank" class="video-link-card">
-                    <img src="https://img.youtube.com/vi/nVeBYKLWiUc/default.jpg" alt="Video Thumbnail">
+                <a href="https://www.youtube.com/watch?v=nVeBYKLWiUc" target="_blank" class="video-link-card bg-white">
+                    <img src="https://img.youtube.com/vi/nVeBYKLWiUc/0.jpg" alt="Video Thumbnail">
                     <p class="text-base font-medium text-[var(--primary-navy)]">Outreach Success Stories</p>
                 </a>
-                <a href="https://www.youtube.com/watch?v=OxlAPbuKuE8" target="_blank" class="video-link-card">
-                    <img src="https://img.youtube.com/vi/OxlAPbuKuE8/default.jpg" alt="Video Thumbnail">
+                <a href="https://www.youtube.com/watch?v=OxlAPbuKuE8" target="_blank" class="video-link-card bg-white">
+                    <img src="https://img.youtube.com/vi/OxlAPbuKuE8/0.jpg" alt="Video Thumbnail">
                     <p class="text-base font-medium text-[var(--primary-navy)]">Community Engagement</p>
                 </a>
-                <a href="https://www.youtube.com/@tsck256/videos" target="_blank" class="video-link-card">
-                    <img src="https://img.youtube.com/vi/i8kq1AXX-ak/default.jpg" alt="Video Thumbnail"> 
-                    <p class="text-base font-medium text-[var(--primary-navy)]">Public Awareness Message</p>
+                 <a href="https://www.youtube.com/@tsck256/videos" target="_blank" class="action-btn text-sm w-full mt-6 inline-block secondary-btn hover:text-white text-center">
+                    VIEW ALL VIDEOS ON YOUTUBE
                 </a>
             </div>
         </div>
@@ -668,61 +706,68 @@
         <div class="mt-12 grid md:grid-cols-2 gap-10 items-stretch"> 
 
         <div id="subscribe" class="flex flex-col h-full">
-            <div class="professional-card text-center p-6 border-l-4 border-[var(--accent-teal)] flex-grow">
+            <div class="professional-card text-center p-8 border-t-4 border-[var(--accent-teal)] flex-grow">
             <h3 class="text-2xl font-extrabold mb-4 text-[var(--primary-navy)]">Join / Register</h3>
-            <p class="mb-6 text-lg font-light">Register your interest or subscribe to updates.</p>
+            <p class="mb-8 text-lg font-light">Register your interest as a volunteer or subscribe to our newsletter for updates.</p>
 
-            <form id="connectForm" class="space-y-3">
-                <input type="text"
-                    name="name" 
-                    id="name"
-                    class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[var(--primary-navy)] focus:border-transparent transition"
-                    placeholder="Your Full Name" required> 
+            <form id="connectForm" class="space-y-4 text-left">
+                <div>
+                    <label for="name" class="block text-sm font-bold text-gray-700 mb-1">Full Name</label>
+                    <input type="text" name="name" id="name" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[var(--accent-teal)] focus:border-transparent transition bg-gray-50" placeholder="Jane Doe" required> 
+                </div>
                     
-                <input type="email"
-                    name="email"
-                    id="email"
-                    class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[var(--primary-navy)] focus:border-transparent transition"
-                    placeholder="Your Email Address" required>
+                <div>
+                    <label for="email" class="block text-sm font-bold text-gray-700 mb-1">Email Address</label>
+                    <input type="email" name="email" id="email" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[var(--accent-teal)] focus:border-transparent transition bg-gray-50" placeholder="jane@example.com" required>
+                </div>
 
-                <select
-                    name="subscription_type"
-                    id="subscription_type"
-                    class="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[var(--primary-navy)] focus:border-transparent transition"
-                    required>
-                    <option value="" disabled selected>Select Subscription/Login Type...</option>
-                    <option value="newsletter">Monthly Newsletter</option>
-                    <option value="volunteer">Volunteer Registration</option>
-                    <option value="member">General Member</option>
-                </select>
+                <div>
+                     <label for="subscription_type" class="block text-sm font-bold text-gray-700 mb-1">I want to...</label>
+                    <select name="subscription_type" id="subscription_type" class="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-[var(--accent-teal)] focus:border-transparent transition" required>
+                        <option value="" disabled selected>Select an option...</option>
+                        <option value="newsletter">Subscribe to Newsletter</option>
+                        <option value="volunteer">Register as Volunteer</option>
+                        <option value="member">Become a General Member</option>
+                    </select>
+                </div>
 
-                <button type="submit" id="submitBtn" class="action-btn w-full mt-4">
-                    SUBMIT
+                <button type="submit" id="submitBtn" class="action-btn w-full mt-6">
+                    SUBMIT REGISTRATION
                 </button>
-                <p id="formStatus" class="text-sm mt-2 hidden"></p>
+                <p id="formStatus" class="text-center text-sm mt-4 hidden font-medium"></p>
             </form>
             </div>
         </div>
 
         <div id="donate-info" class="flex flex-col h-full">
-            <div class="professional-card text-center p-6 border-l-4 border-[var(--primary-navy)] flex-grow flex flex-col justify-between">
+            <div class="professional-card text-center p-8 border-t-4 border-[var(--primary-navy)] flex-grow flex flex-col justify-between">
             <div>
                 <h3 class="text-2xl font-extrabold mb-4 text-[var(--accent-teal)]">Support Our Work</h3>
-                <p class="mb-6 text-lg font-light">
-                    Your generous contribution is vital. It provides immediate funding for screening kits, essential medicine, and long-term therapeutic care.
+                <p class="mb-8 text-lg font-light">
+                    Your contribution is vital. It funds screening kits, essential medicine, and long-term care in Northern Uganda.
                 </p>
 
-                <div class="space-y-3 mb-8"> 
-                    <p class="font-bold text-lg text-[var(--primary-navy)]">Mobile Money Donations</p>
-                    <p class="font-semibold text-lg">📱 MTN: **+256 786 241 344**</p>
-                    <p class="font-semibold text-lg">📱 Airtel: **+256 703 551 804**</p>
-                    <p class="font-bold text-lg text-[var(--primary-navy)] mt-4">Direct Contact</p>
-                    <p class="font-semibold text-lg">📧 Email: **tacklesicklecell22@gmail.com**</p>
+                <div class="flex flex-col space-y-4 mb-8 px-4">
+                    <a href="https://www.patreon.com/DerrickMutatiinaMedicalVideos" target="_blank" class="action-btn patreon-btn flex items-center justify-center">
+                        <i class="fa-brands fa-patreon mr-3 text-xl"></i> Support on Patreon
+                    </a>
+                    <a href="https://buymeacoffee.com/derrickmedical" target="_blank" class="action-btn bmc-btn flex items-center justify-center">
+                        <i class="fa-solid fa-mug-hot mr-3 text-xl"></i> Buy Us a Coffee
+                    </a>
+                </div>
+
+                <div class="space-y-3 mb-8 text-left inline-block"> 
+                    <p class="font-bold text-lg text-[var(--primary-navy)] border-b pb-2 mb-3">Direct Options</p>
+                    <p><i class="fa-solid fa-phone mr-2 text-[var(--accent-teal)]"></i> <span class="font-semibold">+256 786 241 344 (MTN)</span></p>
+                    <p><i class="fa-solid fa-phone mr-2 text-[var(--accent-teal)]"></i> <span class="font-semibold">+256 703 551 804 (Airtel)</span></p>
+                    <p><i class="fa-solid fa-phone-volume mr-2 text-[var(--accent-teal)]"></i> <span class="font-semibold">0394870449 (Office)</span></p>
+                    <p class="mt-4"><i class="fa-solid fa-envelope mr-2 text-[var(--accent-teal)]"></i> <span class="font-semibold">P.O.Box 361777 Gulu</span></p>
+                    <p><i class="fa-solid fa-at mr-2 text-[var(--accent-teal)]"></i> <span class="font-semibold">tacklesicklecell22@gmail.com</span></p>
                 </div>
             </div>
             
-            <a href="mailto:tacklesicklecell22@gmail.com" class="action-btn secondary-btn text-[var(--primary-navy)] bg-transparent hover:text-white hover:bg-[var(--primary-navy)]">
-                CONTACT US TO DONATE
+            <a href="mailto:tacklesicklecell22@gmail.com" class="action-btn secondary-btn text-[var(--primary-navy)] bg-transparent hover:text-white hover:bg-[var(--primary-navy)] w-full">
+                CONTACT TO DONATE DIRECTLY
             </a>
             </div>
         </div>
@@ -734,39 +779,39 @@
 
   <footer class="bg-[var(--secondary-navy)] text-white py-16 mt-16"> 
     <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-10">
-      <div>
+      <div class="col-span-1 md:col-span-2">
         <h3 class="text-3xl font-black mb-4 text-[var(--accent-teal)]">TSCA</h3>
-        <p class="text-gray-300 text-sm">Tackle Sickle Cell Africa – Northern Uganda. Dedicated to a healthier future for warriors.</p>
+        <p class="text-gray-300 text-sm leading-relaxed mb-6">Tackle Sickle Cell Africa – Northern Uganda. Dedicated to a healthier future for warriors through advocacy, education, and comprehensive care.</p>
+        <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-[var(--accent-teal)] transition"><i class="fa-brands fa-facebook fa-lg"></i></a>
+            <a href="#" class="text-gray-400 hover:text-[var(--accent-teal)] transition"><i class="fa-brands fa-twitter fa-lg"></i></a>
+            <a href="https://www.youtube.com/@tsck256" target="_blank" class="text-gray-400 hover:text-[var(--accent-teal)] transition"><i class="fa-brands fa-youtube fa-lg"></i></a>
+        </div>
       </div>
+      
       <div>
         <h4 class="font-bold mb-4 text-xl text-[var(--accent-teal)]">Quick Links</h4>
         <ul class="space-y-3 text-sm">
           <li><a href="#about" class="hover:text-[var(--accent-teal)] transition">About Us</a></li>
           <li><a href="#mission" class="hover:text-[var(--accent-teal)] transition">Our Mission</a></li>
           <li><a href="#programs" class="hover:text-[var(--accent-teal)] transition">Programs</a></li>
-          <li><a href="#donate-info" class="hover:text-[var(--accent-teal)] transition">Donate</a></li>
+          <li><a href="#gallery" class="hover:text-[var(--accent-teal)] transition">Gallery</a></li>
         </ul>
       </div>
+      
       <div>
-        <h4 class="font-bold mb-4 text-xl text-[var(--accent-teal)]">Resources</h4>
+        <h4 class="font-bold mb-4 text-xl text-[var(--accent-teal)]">Contact Us</h4>
         <ul class="space-y-3 text-sm">
-            <li><a href="#gallery" class="hover:text-[var(--accent-teal)] transition">Gallery</a></li>
-            <li><a href="#videos" class="hover:text-[var(--accent-teal)] transition">Videos</a></li>
-            <li><a href="#subscribe-donate-block" class="hover:text-[var(--accent-teal)] transition">Connect</a></li>
+          <li class="flex items-start"><i class="fa-solid fa-phone mt-1 mr-3 text-[var(--accent-teal)]"></i> 0394870449 / +256 786 241 344</li>
+          <li class="flex items-start"><i class="fa-solid fa-envelope mt-1 mr-3 text-[var(--accent-teal)]"></i> tacklesicklecell22@gmail.com</li>
+          <li class="flex items-start"><i class="fa-solid fa-location-dot mt-1 mr-3 text-[var(--accent-teal)]"></i> P.O.Box 361777, Gulu City, Uganda</li>
         </ul>
-      </div>
-      <div>
-        <h4 class="font-bold mb-4 text-xl text-[var(--accent-teal)]">Contact</h4>
-        <ul class="space-y-3 text-sm">
-          <li>Phone: +256 786 241 344</li>
-          <li>Email: tacklesicklecell22@gmail.com</li>
-          <li>Location: Gulu City, Uganda</li>
-        </ul>
+        <a href="#donate-info" class="mt-6 inline-block text-sm font-bold text-[var(--accent-teal)] hover:underline">Support Our Mission →</a>
       </div>
     </div>
 
-    <p class="text-center mt-16 text-gray-400 border-t border-gray-700 pt-8 mx-6 text-sm">
-      © <span id="year"></span> TSCA — All Rights Reserved.
+    <p class="text-center mt-16 text-gray-400 border-t border-gray-800 pt-8 mx-6 text-sm">
+      © <span id="year"></span> Tackle Sickle Cell Africa. All Rights Reserved.
     </p>
   </footer>
 
@@ -775,12 +820,15 @@
     document.getElementById('year').textContent = new Date().getFullYear();
 
     // 2. MOBILE MENU TOGGLE
-    document.getElementById("mobileBtn").addEventListener("click", () => {
-        document.getElementById("mobileMenu").classList.toggle("hidden");
+    const mobileBtn = document.getElementById("mobileBtn");
+    const mobileMenu = document.getElementById("mobileMenu");
+    mobileBtn.addEventListener("click", () => {
+        mobileMenu.classList.toggle("hidden");
+        // Optional: change icon
+        mobileBtn.innerHTML = mobileMenu.classList.contains("hidden") ? '<span class="text-xl text-[var(--text-dark)]">☰</span>' : '<span class="text-xl text-[var(--text-dark)]">✕</span>';
     });
 
-    // 3. HERO SLIDESHOW
-    // Paths include the 'images/' folder
+    // 3. HERO SLIDESHOW (Ensure paths are correct)
     const heroImages = [
         "images/hero1.jpg", 
         "images/hero2.jpg", 
@@ -790,6 +838,8 @@
     const heroSection = document.getElementById('home');
 
     function changeHeroImage() {
+        if (heroImages.length === 0) return; // Guard clause
+        
         currentImageIndex = (currentImageIndex + 1) % heroImages.length;
         // Pre-load image to prevent flicker
         const img = new Image();
@@ -799,15 +849,18 @@
         };
     }
     // Change image every 5 seconds (5000ms)
-    setInterval(changeHeroImage, 5000);
+    if (heroImages.length > 1) {
+        setInterval(changeHeroImage, 5000);
+    }
 
 
-    // 4. GOOGLE SCRIPT FORM SUBMISSION
+    // 4. GOOGLE SCRIPT FORM SUBMISSION (Requires actual Google Apps Script URL to function properly)
     const form = document.getElementById('connectForm');
     const statusText = document.getElementById('formStatus');
     const submitBtn = document.getElementById('submitBtn');
+    const originalBtnText = submitBtn.textContent;
 
-    // Your Provided Google Web App URL
+    // Replace with your actual Google Web App URL if you have one deployed
     const scriptURL = 'https://script.google.com/macros/s/AKfycbz46vKG97OgX-nIjLtYsfTtzAZN4d7EgWu2Eb4A6j-2uKa6QJPzX7OoqNeAiXTOBV9_8w/exec';
 
     form.addEventListener('submit', e => {
@@ -815,39 +868,62 @@
       
       // UI Updates
       submitBtn.disabled = true;
-      submitBtn.textContent = "Sending...";
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Processing...';
       statusText.classList.remove('hidden');
-      statusText.textContent = "Processing...";
-      statusText.style.color = "var(--primary-navy)";
+      statusText.textContent = ""; // Clear previous messages
 
-      // Prepare form data
       const formData = new FormData(form);
 
       fetch(scriptURL, { 
         method: 'POST', 
         body: formData,
+        // 'no-cors' is often necessary for Google Apps Script web apps depending on deployment permissions
         mode: 'no-cors' 
       })
       .then(() => {
-        statusText.textContent = "Thank you! Your details have been registered.";
-        statusText.style.color = "green";
+        // Assuming success if fetch completes in 'no-cors' mode
+        statusText.textContent = "Thank you! Your details have been registered successfully.";
+        statusText.className = "text-center text-sm mt-4 font-medium text-green-600 fade-in";
         form.reset();
-        submitBtn.textContent = "SUBMIT";
-        submitBtn.disabled = false;
-        
-        setTimeout(() => {
-            statusText.classList.add('hidden');
-        }, 5000);
       })
       .catch(error => {
         console.error('Error!', error.message);
-        statusText.textContent = "Something went wrong. Please check your internet connection.";
-        statusText.style.color = "red";
-        submitBtn.disabled = false;
-        submitBtn.textContent = "SUBMIT";
+        statusText.textContent = "Something went wrong. Please check your connection and try again.";
+        statusText.className = "text-center text-sm mt-4 font-medium text-red-600 fade-in";
+      })
+      .finally(() => {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalBtnText;
+          // Hide status after 5 seconds on success
+          if (statusText.classList.contains('text-green-600')) {
+              setTimeout(() => {
+                  statusText.classList.add('hidden');
+                  statusText.classList.remove('fade-in');
+              }, 6000);
+          }
       });
     });
+
+    // 5. NEW GALLERY "LOAD MORE" FUNCTIONALITY
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    // Select only elements that have BOTH 'gallery-hidden' and 'hidden' classes
+    const hiddenGalleryItems = document.querySelectorAll('.gallery-hidden.hidden');
+
+    if (loadMoreBtn && hiddenGalleryItems.length > 0) {
+        loadMoreBtn.addEventListener('click', function() {
+            hiddenGalleryItems.forEach(item => {
+                // Remove the 'hidden' Tailwind class to make it visible
+                item.classList.remove('hidden');
+                // Add fade-in animation class for smoother appearance
+                item.classList.add('fade-in');
+            });
+            // Hide the button itself after loading the images
+            this.style.display = 'none';
+        });
+    } else if (loadMoreBtn) {
+         // If the button exists but there are no hidden items initially, hide the button.
+        loadMoreBtn.style.display = 'none';
+    }
   </script>
 </body>
-
 </html>
