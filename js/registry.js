@@ -12,10 +12,90 @@
   const mainContent = document.getElementById('mainContent');
   const navBtns = document.querySelectorAll('[data-nav]');
   const userBadge = document.getElementById('userBadge');
+  const offlineIndicator = document.getElementById('offlineIndicator');
+  const queueIndicator = document.getElementById('queueIndicator');
+  let isOnline = navigator.onLine;
+  let queueCount = 0;
+
+  function updateOnlineStatus() {
+    isOnline = navigator.onLine;
+    if (offlineIndicator) offlineIndicator.classList.toggle('hidden', isOnline);
+    if (!isOnline && queueCount === 0) {
+      mainContent.innerHTML = '<div class="reg-alert" style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d"><i class="fa-solid fa-wifi-slash"></i> You are offline. Changes will be saved and synced when connection is restored.</div>' + mainContent.innerHTML;
+    }
+  }
+  window.addEventListener('online', () => { updateOnlineStatus(); syncQueue(); });
+  window.addEventListener('offline', updateOnlineStatus);
+  updateOnlineStatus();
+
+  function updateQueueIndicator(count) {
+    queueCount = count;
+    if (queueIndicator) {
+      if (count > 0) {
+        queueIndicator.textContent = count + ' pending';
+        queueIndicator.classList.remove('hidden');
+      } else {
+        queueIndicator.classList.add('hidden');
+      }
+    }
+  }
+
+  function syncQueue() {
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({ type: 'GET_QUEUE_COUNT' });
+    }
+  }
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', event => {
+      if (event.data.type === 'QUEUE_COUNT') updateQueueIndicator(event.data.count);
+      if (event.data.type === 'SYNC_COMPLETE') {
+        updateQueueIndicator(event.data.remaining);
+        if (event.data.synced > 0) {
+          alert(event.data.synced + ' offline submission(s) synced successfully!' + (event.data.remaining > 0 ? ' ' + event.data.remaining + ' remaining.' : ''));
+          navigate(document.querySelector('[data-nav].active')?.dataset.nav || 'dashboard');
+        }
+      }
+    });
+    syncQueue();
+  }
+
+  function queueRequest(url, options) {
+    return new Promise((resolve, reject) => {
+      if (!navigator.serviceWorker || !navigator.serviceWorker.controller) {
+        reject(new Error('Service worker not available'));
+        return;
+      }
+      const handler = event => {
+        if (event.data.type === 'SYNC_COMPLETE') {
+          navigator.serviceWorker.removeEventListener('message', handler);
+          if (event.data.synced > 0) resolve({ success: true, message: 'Queued and synced.' });
+          else reject(new Error('Sync failed. Will retry.'));
+        }
+      };
+      navigator.serviceWorker.addEventListener('message', handler);
+      navigator.serviceWorker.controller.postMessage({
+        type: 'QUEUE_REQUEST',
+        url,
+        options
+      });
+      updateQueueIndicator(queueCount + 1);
+      resolve({ success: true, message: 'Saved offline. Will sync when back online.' });
+    });
+  }
   async function api(path, opts = {}) {
     const headers = { Accept: 'application/json', ...(opts.headers || {}) };
     if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
-    const res = await fetch(API + path, { ...opts, headers });
+    const method = (opts.method || 'GET').toUpperCase();
+    const url = API + path;
+
+    // Queue write requests when offline
+    if (!isOnline && method !== 'GET') {
+      const result = await queueRequest(url, { method, headers, body: opts.body });
+      return { success: true, data: result, message: result.message };
+    }
+
+    const res = await fetch(url, { ...opts, headers });
     const ct = res.headers.get('content-type') || '';
     if (ct.includes('text/csv')) return res;
     const data = await res.json().catch(() => ({}));

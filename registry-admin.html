@@ -51,6 +51,8 @@
           <button data-nav="screening-requests" data-min-role="ADMINISTRATOR"><i class="fa-solid fa-calendar-check"></i> Screening Requests</button>
         </nav>
         <div class="reg-header-right">
+          <span id="offlineIndicator" class="reg-offline-badge hidden" title="Offline mode - changes will sync when back online"><i class="fa-solid fa-wifi-slash"></i> Offline</span>
+          <span id="queueIndicator" class="reg-queue-badge hidden" title="Pending offline submissions"></span>
           <span id="roleIndicator" class="reg-role-badge"></span>
           <span id="userBadge" class="reg-user-badge"></span>
           <button class="btn-logout" onclick="window.__regLogout()" title="Logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>

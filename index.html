@@ -702,12 +702,36 @@
   <script src="config.js"></script>
   <script src="js/app.js" defer></script>
   <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(function(reg) {
+        console.log('SW registered:', reg.scope);
+      }).catch(function(err) {
+        console.log('SW registration failed:', err);
+      });
+    }
+  </script>
+  <script>
     document.addEventListener('DOMContentLoaded', function() {
       const form = document.getElementById('screeningRequestForm');
       if (!form) return;
       const API_BASE = (window.TSCA_API_BASE_URL || 'http://127.0.0.1:8081/api/v1').replace(/\/$/, '');
       const statusEl = document.getElementById('sr-status');
       const submitBtn = document.getElementById('sr-submitBtn');
+
+      function queueForOffline(url, options) {
+        return new Promise(function(resolve, reject) {
+          if (!navigator.serviceWorker || !navigator.serviceWorker.controller) {
+            reject(new Error('Service worker not available'));
+            return;
+          }
+          navigator.serviceWorker.controller.postMessage({
+            type: 'QUEUE_REQUEST',
+            url: url,
+            options: options
+          });
+          resolve({ success: true, queued: true });
+        });
+      }
 
       form.addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -717,18 +741,27 @@
 
         const payload = {};
         new FormData(form).forEach(function(v, k) { if (v) payload[k] = v; });
+        const url = API_BASE + '/screening-requests';
+        const fetchOpts = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(payload)
+        };
 
         try {
-          const res = await fetch(API_BASE + '/screening-requests', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-          const data = await res.json();
-          if (!res.ok || !data.success) throw new Error(data.error || 'Submission failed.');
-          statusEl.textContent = 'Thank you! Your screening request has been submitted. We will contact you shortly.';
-          statusEl.className = 'text-center text-sm mt-4 font-medium text-green-700';
-          form.reset();
+          if (!navigator.onLine) {
+            await queueForOffline(url, fetchOpts);
+            statusEl.textContent = 'Request saved offline! It will be submitted automatically when you are back online.';
+            statusEl.className = 'text-center text-sm mt-4 font-medium text-yellow-700';
+            form.reset();
+          } else {
+            const res = await fetch(url, fetchOpts);
+            const data = await res.json();
+            if (!res.ok || !data.success) throw new Error(data.error || 'Submission failed.');
+            statusEl.textContent = 'Thank you! Your screening request has been submitted. We will contact you shortly.';
+            statusEl.className = 'text-center text-sm mt-4 font-medium text-green-700';
+            form.reset();
+          }
         } catch (err) {
           statusEl.textContent = err.message || 'Something went wrong. Please try again.';
           statusEl.className = 'text-center text-sm mt-4 font-medium text-red-600';

@@ -510,6 +510,27 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
+.reg-offline-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+  animation: pulse-offline 2s ease-in-out infinite;
+}
+.reg-queue-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1e40af;
+}
+@keyframes pulse-offline {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
 .btn-logout {
   background: none;
   border: 1px solid var(--reg-border);
