@@ -74,7 +74,7 @@
   window.__regNav = navigate; window.__regParticipants = renderParticipants; window.__regProfile = renderProfile; window.__regLogout = logout;
   function navigate(view) {
     navBtns.forEach(b => b.classList.toggle('active', b.dataset.nav === view));
-    ({dashboard:renderDashboard,participants:renderParticipants,register:renderRegister,screening:renderScreening,events:renderEvents,reports:renderReports,'admin-users':renderAdminUsers,'pending-review':renderPendingReview,'registrations':renderRegistrations})[view]?.();
+    ({dashboard:renderDashboard,participants:renderParticipants,register:renderRegister,screening:renderScreening,events:renderEvents,reports:renderReports,'admin-users':renderAdminUsers,'pending-review':renderPendingReview,'registrations':renderRegistrations,'screening-requests':renderScreeningRequests})[view]?.();
   }
   function esc(v) { return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
   function fmtDate(d) { return d ? new Date(d).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}) : '\u2014'; }
@@ -319,6 +319,55 @@
     }catch(e){mainContent.innerHTML='<div class="reg-alert reg-alert-error">'+esc(e.message)+'</div>';}
   }
   window.__regRegistrations = renderRegistrations;
+  async function renderScreeningRequests(page) {
+    page=page||1; mainContent.innerHTML='<div class="reg-loading">Loading screening requests...</div>';
+    try{const q=document.getElementById('srqSearchInput')?.value||'';const s=document.getElementById('srqFilterStatus')?.value||'';
+    const params=new URLSearchParams({page:String(page),limit:'15'});if(q)params.set('search',q);if(s)params.set('status',s);
+    const res=await api('/registry/screening-requests?'+params);const items=res.data.items,pg=res.data.pagination;
+    let h='<div class="section-header"><h2 style="margin:0">Screening Requests</h2><button class="btn-secondary" onclick="window.__regNav(\'dashboard\')"><i class="fa-solid fa-arrow-left"></i> Back</button></div>'
+      +'<div class="reg-card"><div class="toolbar"><input id="srqSearchInput" placeholder="Search name, phone, email..." value="'+esc(q)+'">'
+      +'<select id="srqFilterStatus"><option value="">All Status</option><option value="pending"'+(s==='pending'?' selected':'')+'>Pending</option><option value="confirmed"'+(s==='confirmed'?' selected':'')+'>Confirmed</option><option value="completed"'+(s==='completed'?' selected':'')+'>Completed</option><option value="cancelled"'+(s==='cancelled'?' selected':'')+'>Cancelled</option></select>'
+      +'<button onclick="window.__regScreeningRequests(1)">Search</button></div>';
+    h+='<div class="table-wrap"><table class="data-table"><thead><tr><th>Name</th><th>Phone</th><th>District</th><th>Pref. Date</th><th>Location</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+    items.forEach(r=>{
+      const sc='badge-'+r.status;
+      h+='<tr><td><strong>'+esc(r.full_name)+'</strong></td><td>'+esc(r.phone||'\u2014')+'</td><td>'+esc(r.district||'\u2014')+'</td><td>'+(r.preferred_date?fmtDate(r.preferred_date):'\u2014')+'</td><td>'+esc(r.preferred_location||'\u2014')+'</td><td><span class="badge '+sc+'">'+esc(r.status)+'</span></td><td>'
+      +(r.status==='pending'?'<button class="btn-secondary" style="padding:5px 8px;font-size:.78rem" onclick="window.__regConfirmRequest('+r.id+')"><i class="fa-solid fa-check"></i> Confirm</button> ':'')
+      +(r.status==='confirmed'?'<button class="btn-secondary" style="padding:5px 8px;font-size:.78rem" onclick="window.__regUpdateRequestStatus('+r.id+',\'completed\')"><i class="fa-solid fa-flag-checkered"></i> Complete</button> ':'')
+      +'<button class="btn-secondary" style="padding:5px 8px;font-size:.78rem;color:#dc2626" onclick="window.__regUpdateRequestStatus('+r.id+',\'cancelled\')">Cancel</button> '
+      +'<button class="btn-secondary" style="padding:5px 8px;font-size:.78rem;color:#dc2626" onclick="window.__regDeleteRequest('+r.id+')"><i class="fa-solid fa-trash"></i></button>'
+      +'</td></tr>';});
+    h+='</tbody></table></div><div class="mobile-cards">';
+    items.forEach(r=>{
+      const sc='badge-'+r.status;
+      h+='<div class="record-card"><div class="card-header"><div><span class="card-name">'+esc(r.full_name)+'</span><div class="card-meta" style="margin-top:4px"><span><i class="fa-solid fa-phone"></i> '+esc(r.phone||'\u2014')+'</span></div></div><span class="badge '+sc+'">'+esc(r.status)+'</span></div><div class="card-meta"><span><i class="fa-solid fa-location-dot"></i> '+esc(r.district||'\u2014')+'</span><span><i class="fa-solid fa-calendar"></i> '+(r.preferred_date?fmtDate(r.preferred_date):'\u2014')+'</span><span><i class="fa-solid fa-hospital"></i> '+esc(r.preferred_location||'\u2014')+'</span></div>'
+      +(r.notes?'<p style="font-size:.85rem;color:var(--reg-muted);margin-top:6px">'+esc(r.notes)+'</p>':'')
+      +'<div class="card-actions">'
+      +(r.status==='pending'?'<button class="btn-secondary" style="padding:8px 14px;font-size:.85rem" onclick="window.__regConfirmRequest('+r.id+')"><i class="fa-solid fa-check"></i> Confirm</button>':'')
+      +(r.status==='confirmed'?'<button class="btn-secondary" style="padding:8px 14px;font-size:.85rem" onclick="window.__regUpdateRequestStatus('+r.id+',\'completed\')"><i class="fa-solid fa-flag-checkered"></i> Complete</button>':'')
+      +'<button class="btn-secondary" style="padding:8px 14px;font-size:.85rem;color:#dc2626" onclick="window.__regUpdateRequestStatus('+r.id+',\'cancelled\')">Cancel</button>'
+      +'<button class="btn-secondary" style="padding:8px 14px;font-size:.85rem;color:#dc2626" onclick="window.__regDeleteRequest('+r.id+')"><i class="fa-solid fa-trash"></i></button>'
+      +'</div></div>';});
+    if(!items.length)h+='<div class="empty-state"><p>No screening requests found.</p></div>';h+='</div>';
+    if(pg.pages>1)h+='<div class="pagination"><button '+(pg.page<=1?'disabled':'')+' onclick="window.__regScreeningRequests('+(pg.page-1)+')">Prev</button><span>Page '+pg.page+' of '+pg.pages+' ('+pg.total+' total)</span><button '+(pg.page>=pg.pages?'disabled':'')+' onclick="window.__regScreeningRequests('+(pg.page+1)+')">Next</button></div>';
+    h+='</div>';mainContent.innerHTML=h;
+    document.getElementById('srqSearchInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')window.__regScreeningRequests(1);});
+    document.getElementById('srqFilterStatus')?.addEventListener('change',()=>window.__regScreeningRequests(1));
+    mainContent.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.nav)));
+    }catch(e){mainContent.innerHTML='<div class="reg-alert reg-alert-error">'+esc(e.message)+'</div>';}
+  }
+  window.__regScreeningRequests = renderScreeningRequests;
+  window.__regConfirmRequest = async function(id) {
+    if(!confirm('Confirm this request? A participant record will be created automatically.'))return;
+    try{await api('/registry/screening-requests/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'confirm'})});renderScreeningRequests();}catch(e){alert('Failed: '+e.message);}
+  };
+  window.__regUpdateRequestStatus = async function(id,status) {
+    try{await api('/registry/screening-requests/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:status})});renderScreeningRequests();}catch(e){alert('Failed: '+e.message);}
+  };
+  window.__regDeleteRequest = async function(id) {
+    if(!confirm('Delete this request?'))return;
+    try{await api('/registry/screening-requests/'+id,{method:'DELETE'});renderScreeningRequests();}catch(e){alert('Failed: '+e.message);}
+  };
   async function renderReports() {
     mainContent.innerHTML='<div class="reg-loading">Loading reports...</div>';
     try{const[sumRes,distRes,demoRes,refRes]=await Promise.all([api('/registry/reports/summary'),api('/registry/reports/results'),api('/registry/reports/demographics'),api('/registry/reports/referrals')]);

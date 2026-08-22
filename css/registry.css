@@ -301,6 +301,8 @@ body {
 .badge-result-aa { background: var(--reg-success-bg); color: var(--reg-success); }
 .badge-result-ss { background: #e0e7ff; color: #3730a3; }
 .badge-referral { background: #fee2e2; color: #991b1b; }
+.badge-confirmed { background: #dbeafe; color: #1e40af; }
+.badge-cancelled { background: #f3f4f6; color: #6b7280; }
 
 /* === Participant Profile === */
 .profile-header { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }

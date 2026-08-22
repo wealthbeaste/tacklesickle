@@ -73,6 +73,7 @@ try {
     $migrations = [
         '001_schema' => __DIR__ . '/../database/schema.sql',
         '002_auth_migration' => __DIR__ . '/../database/auth-migration.sql',
+        '003_screening_requests' => __DIR__ . '/../database/screening-requests-migration.sql',
     ];
 
     foreach ($migrations as $name => $file) {

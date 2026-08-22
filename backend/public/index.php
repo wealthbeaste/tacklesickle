@@ -11,6 +11,7 @@ require_once __DIR__ . '/../src/EventRepository.php';
 require_once __DIR__ . '/../src/FollowUpRepository.php';
 require_once __DIR__ . '/../src/ReportsRepository.php';
 require_once __DIR__ . '/../src/AuthRepository.php';
+require_once __DIR__ . '/../src/ScreeningRequestRepository.php';
 
 Config::load(__DIR__ . '/../.env');
 
@@ -441,6 +442,62 @@ try {
         $o = fopen('php://output', 'w');
         if ($items) { fputcsv($o, array_keys($items[0])); foreach ($items as $r) fputcsv($o, $r); }
         fclose($o); exit;
+    }
+
+    // ==========================================
+    // SCREENING REQUESTS (Public + Admin)
+    // ==========================================
+    $screeningRequests = new ScreeningRequestRepository($db);
+
+    // Public: submit a screening request
+    if ($path === '/api/v1/screening-requests' && $method === 'POST') {
+        $data = body();
+        if (empty($data['full_name']) || trim($data['full_name']) === '') jsonResponse(['success' => false, 'error' => 'Full name required.'], 422);
+        if (empty($data['phone']) && empty($data['email'])) jsonResponse(['success' => false, 'error' => 'Phone or email required.'], 422);
+        $created = $screeningRequests->create($data);
+        jsonResponse(['success' => true, 'message' => 'Screening request submitted. We will contact you shortly.', 'data' => $created], 201);
+    }
+
+    // Admin: list all screening requests
+    if ($path === '/api/v1/registry/screening-requests' && $method === 'GET') {
+        adminRequired();
+        jsonResponse(['success' => true, 'data' => $screeningRequests->list($_GET)]);
+    }
+
+    // Admin: screening request stats
+    if ($path === '/api/v1/registry/screening-requests/stats' && $method === 'GET') {
+        adminRequired();
+        jsonResponse(['success' => true, 'data' => $screeningRequests->stats()]);
+    }
+
+    // Admin: update screening request status or confirm (auto-create participant)
+    if (preg_match('#^/api/v1/registry/screening-requests/(\d+)$#', $path, $m)) {
+        $id = (int)$m[1];
+        if ($method === 'GET') {
+            adminRequired();
+            $r = $screeningRequests->find($id);
+            $r ? jsonResponse(['success' => true, 'data' => $r]) : jsonResponse(['success' => false, 'error' => 'Not found.'], 404);
+        }
+        if ($method === 'PATCH') {
+            $user = adminRequired();
+            $data = body();
+            if (isset($data['action']) && $data['action'] === 'confirm') {
+                $result = $screeningRequests->confirmAndCreateParticipant($id, $user['id']);
+                $result ? jsonResponse(['success' => true, 'message' => 'Request confirmed. Participant created.', 'data' => $result]) : jsonResponse(['success' => false, 'error' => 'Not found.'], 404);
+            } elseif (isset($data['status'])) {
+                if (!in_array($data['status'], ['pending', 'confirmed', 'completed', 'cancelled'], true)) {
+                    jsonResponse(['success' => false, 'error' => 'Valid status required.'], 422);
+                }
+                $result = $screeningRequests->updateStatus($id, $data['status']);
+                $result ? jsonResponse(['success' => true, 'data' => $result]) : jsonResponse(['success' => false, 'error' => 'Not found.'], 404);
+            } else {
+                jsonResponse(['success' => false, 'error' => 'Status or action required.'], 422);
+            }
+        }
+        if ($method === 'DELETE') {
+            adminRequired();
+            $screeningRequests->delete($id) ? jsonResponse(['success' => true, 'message' => 'Deleted.']) : jsonResponse(['success' => false, 'error' => 'Not found.'], 404);
+        }
     }
 
     jsonResponse(['success' => false, 'error' => 'Endpoint not found.'], 404);
