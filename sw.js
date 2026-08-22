@@ -1,5 +1,5 @@
 // TSCA Registry Service Worker
-const CACHE_NAME = 'tsca-registry-v2';
+const CACHE_NAME = 'tsca-registry-v5';
 const OFFLINE_URLS = [
   '/config.js',
   '/registry-admin.html',
@@ -24,6 +24,9 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
+
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
 
   event.respondWith(
     caches.match(event.request).then(cached => {

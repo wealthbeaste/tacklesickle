@@ -76,6 +76,7 @@
       <button type="button" class="hero-dot" data-slide="1" aria-label="Show slide 2"></button>
       <button type="button" class="hero-dot" data-slide="2" aria-label="Show slide 3"></button>
     </div>
+    <div class="hero-progress-wrap"><div class="hero-progress-bar" id="heroProgressBar"></div></div>
     
     <div class="relative text-center text-white p-6 max-w-5xl mx-auto content-wrapper">
       
@@ -100,7 +101,7 @@
   
 <section id="about" class="py-24 bg-white">
   <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-start">
-    <div>
+    <div class="reveal-left">
       <div class="section-title-wrap">
         <h2 class="section-title">About Us</h2>
       </div>
@@ -111,7 +112,7 @@
         we empower individuals and families to manage SCD effectively and prevent its inheritance.
       </p>
     </div>
-    <div class="professional-card p-6 text-center">
+    <div class="professional-card p-6 text-center reveal-right">
       <i class="fa-solid fa-hands-holding-heart text-5xl text-[var(--accent-teal)] mb-4"></i>
       <h4 class="font-bold text-xl text-[var(--primary-navy)]">Advocacy in Action</h4>
       <p class="mt-2 text-sm">Empowering communities through education and care.</p>
@@ -121,10 +122,10 @@
 
 <section id="mission" class="py-24 bg-light-cream">
   <div class="max-w-7xl mx-auto px-6">
-    <div class="section-title-wrap">
+    <div class="section-title-wrap reveal">
       <h2 class="section-title">Our Mission</h2>
     </div>
-    <div class="professional-card mt-8 p-6">
+    <div class="professional-card mt-8 p-6 reveal">
       <i class="fa-solid fa-bullseye text-4xl text-[var(--accent-teal)] mb-4"></i>
       <p class="text-lg">
         To holistically combat sickle cell disease in rural African communities by providing free screenings,
@@ -341,7 +342,7 @@
 
 <section id="gallery" class="py-24 bg-white">
   <div class="max-w-7xl mx-auto px-6">
-    <div class="section-title-wrap text-center">
+    <div class="section-title-wrap text-center reveal">
       <h2 class="section-title">Gallery</h2>
       <p class="mt-4 text-lg text-gray-600">
         Moments from our outreach, screenings, and community programs.
@@ -349,39 +350,50 @@
     </div>
 
     <div class="grid md:grid-cols-3 gap-8 mt-12" id="gallery-grid">
-      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg">
-        <img src="images/gallery3.jpeg" alt="Community screening" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
+      <div class="gallery-item reveal-scale" data-caption="Community screening">
+        <img src="images/gallery3.jpeg" alt="Community screening" loading="lazy">
+        <div class="gallery-overlay"><span class="overlay-icon"><i class="fa-solid fa-expand"></i></span><span class="overlay-text">View</span></div>
       </div>
-      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg">
-        <img src="images/gallery9.jpg" alt="Counseling session" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
+      <div class="gallery-item reveal-scale" data-caption="Counseling session">
+        <img src="images/gallery9.jpg" alt="Counseling session" loading="lazy">
+        <div class="gallery-overlay"><span class="overlay-icon"><i class="fa-solid fa-expand"></i></span><span class="overlay-text">View</span></div>
       </div>
-      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg">
-        <img src="images/gallery5.jpg" alt="Awareness campaign" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
+      <div class="gallery-item reveal-scale" data-caption="Awareness campaign">
+        <img src="images/gallery5.jpg" alt="Awareness campaign" loading="lazy">
+        <div class="gallery-overlay"><span class="overlay-icon"><i class="fa-solid fa-expand"></i></span><span class="overlay-text">View</span></div>
       </div>
-      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg">
-        <img src="images/gallery6.jpg" alt="Training healthcare workers" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
+      <div class="gallery-item reveal-scale" data-caption="Training healthcare workers">
+        <img src="images/gallery6.jpg" alt="Training healthcare workers" loading="lazy">
+        <div class="gallery-overlay"><span class="overlay-icon"><i class="fa-solid fa-expand"></i></span><span class="overlay-text">View</span></div>
       </div>
-      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg">
-        <img src="images/gallery5.jpg" alt="Community outreach event" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
+      <div class="gallery-item reveal-scale" data-caption="Community outreach event">
+        <img src="images/gallery5.jpg" alt="Community outreach event" loading="lazy">
+        <div class="gallery-overlay"><span class="overlay-icon"><i class="fa-solid fa-expand"></i></span><span class="overlay-text">View</span></div>
       </div>
-      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg">
-        <img src="images/gallery6.jpg" alt="Children receiving support" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
+      <div class="gallery-item reveal-scale" data-caption="Children receiving support">
+        <img src="images/gallery6.jpg" alt="Children receiving support" loading="lazy">
+        <div class="gallery-overlay"><span class="overlay-icon"><i class="fa-solid fa-expand"></i></span><span class="overlay-text">View</span></div>
       </div>
 
-      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg hidden gallery-hidden">
-        <img src="images/gallery7.jpg" alt="Field activity 1" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
+      <div class="gallery-item reveal-scale hidden gallery-hidden" data-caption="Field activity">
+        <img src="images/gallery7.jpg" alt="Field activity 1" loading="lazy">
+        <div class="gallery-overlay"><span class="overlay-icon"><i class="fa-solid fa-expand"></i></span><span class="overlay-text">View</span></div>
       </div>
-      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg hidden gallery-hidden">
-        <img src="images/gallery8.jpg" alt="Field activity 2" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
+      <div class="gallery-item reveal-scale hidden gallery-hidden" data-caption="Field operations">
+        <img src="images/gallery8.jpg" alt="Field activity 2" loading="lazy">
+        <div class="gallery-overlay"><span class="overlay-icon"><i class="fa-solid fa-expand"></i></span><span class="overlay-text">View</span></div>
       </div>
-      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg hidden gallery-hidden">
-        <img src="images/sickle-cell-universal-832x469.jpg" alt="Sickle cell illustration" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
+      <div class="gallery-item reveal-scale hidden gallery-hidden" data-caption="Sickle cell awareness">
+        <img src="images/sickle-cell-universal-832x469.jpg" alt="Sickle cell illustration" loading="lazy">
+        <div class="gallery-overlay"><span class="overlay-icon"><i class="fa-solid fa-expand"></i></span><span class="overlay-text">View</span></div>
       </div>
-      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg hidden gallery-hidden">
-        <img src="images/Normal-red-blood-cell-sickle-cell-flow-inside-in-artery-shut.jpg" alt="Blood cell comparison" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
+      <div class="gallery-item reveal-scale hidden gallery-hidden" data-caption="Blood cell comparison">
+        <img src="images/Normal-red-blood-cell-sickle-cell-flow-inside-in-artery-shut.jpg" alt="Blood cell comparison" loading="lazy">
+        <div class="gallery-overlay"><span class="overlay-icon"><i class="fa-solid fa-expand"></i></span><span class="overlay-text">View</span></div>
       </div>
-      <div class="professional-card overflow-hidden p-0 border-0 shadow-lg hidden gallery-hidden">
-        <img src="images/acpi-202106-selecting-a-sickle-cell-therapy_a1.jpg" alt="Therapy selection" class="w-full h-64 object-cover hover:scale-105 transition-transform duration-500">
+      <div class="gallery-item reveal-scale hidden gallery-hidden" data-caption="Therapy selection">
+        <img src="images/acpi-202106-selecting-a-sickle-cell-therapy_a1.jpg" alt="Therapy selection" loading="lazy">
+        <div class="gallery-overlay"><span class="overlay-icon"><i class="fa-solid fa-expand"></i></span><span class="overlay-text">View</span></div>
       </div>
     </div>
     
@@ -398,20 +410,22 @@
 
   <section id="videos" class="py-24 md:py-32 bg-light-cream">
     <div class="max-w-7xl mx-auto px-6">
-        <div class="section-title-wrap">
+        <div class="section-title-wrap reveal">
             <h2 class="section-title">Our Story on Film</h2>
         </div>
 
         <div class="mt-12 grid lg:grid-cols-3 gap-10 items-start">
             <div class="lg:col-span-2">
-                <div class="featured-video-container">
-                    <iframe 
-                      src="https://www.youtube.com/embed/i8kq1AXX-ak?rel=0&autoplay=0&mute=0&controls=1" 
-                      frameborder="0" 
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                      allowfullscreen 
-                      loading="lazy"></iframe>
-                </div>
+                <a href="https://www.youtube.com/watch?v=i8kq1AXX-ak" target="_blank" class="block group">
+                    <div class="featured-video-container relative overflow-hidden rounded-xl cursor-pointer">
+                        <img src="https://img.youtube.com/vi/i8kq1AXX-ak/hqdefault.jpg" alt="Featured Documentary" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+                            <div class="w-20 h-20 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                <svg class="w-8 h-8 text-[var(--primary-navy)] ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                </a>
                 <h3 class="mt-6 text-2xl md:text-3xl font-extrabold text-[var(--primary-navy)]">FEATURED DOCUMENTARY: A WARRIOR'S JOURNEY</h3>
                 <p class="mt-3 text-lg text-[var(--text-dark)]">
                     Watch our in-depth documentary showcasing the daily challenges faced by sickle cell warriors and the transformative impact of TSCA's programs in Northern Uganda.
@@ -440,7 +454,7 @@
 
   <section id="subscribe-donate-block" class="py-16 md:py-24 bg-white">
     <div class="max-w-7xl mx-auto px-6">
-        <div class="section-title-wrap">
+        <div class="section-title-wrap reveal">
             <h2 class="section-title">Partner with Our Mission</h2>
         </div>
 
@@ -521,6 +535,42 @@
     </div>
   </section>
 
+  <section class="carousel-section" id="imageCarousel">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="section-title-wrap text-center reveal">
+        <h2 class="section-title">Impact Moments</h2>
+        <p class="mt-4 text-lg" style="color:rgba(255,255,255,0.7)">A visual journey through our work in communities.</p>
+      </div>
+    </div>
+    <div class="carousel-wrapper">
+      <div class="carousel-track" id="carouselTrack">
+        <div class="carousel-slide">
+          <img src="images/hero1.jpg" alt="Community outreach" loading="lazy">
+          <div class="slide-caption"><h3>Community Outreach</h3><p>Bringing screening and education to rural communities across Northern Uganda.</p></div>
+        </div>
+        <div class="carousel-slide">
+          <img src="images/gallery3.jpeg" alt="Screening event" loading="lazy">
+          <div class="slide-caption"><h3>Free Screening Programs</h3><p>Early detection saves lives - over 5,000 individuals screened annually.</p></div>
+        </div>
+        <div class="carousel-slide">
+          <img src="images/gallery9.jpg" alt="Counseling session" loading="lazy">
+          <div class="slide-caption"><h3>Genetic Counseling</h3><p>Educating families on sickle cell inheritance and prevention strategies.</p></div>
+        </div>
+        <div class="carousel-slide">
+          <img src="images/hero2.jpg" alt="Healthcare training" loading="lazy">
+          <div class="slide-caption"><h3>Healthcare Worker Training</h3><p>Building capacity in local health facilities for better patient outcomes.</p></div>
+        </div>
+        <div class="carousel-slide">
+          <img src="images/gallery6.jpg" alt="Support programs" loading="lazy">
+          <div class="slide-caption"><h3>Warrior Support</h3><p>Comprehensive care programs for children and adults living with SCD.</p></div>
+        </div>
+      </div>
+      <button class="carousel-btn carousel-prev" id="carouselPrev"><i class="fa-solid fa-chevron-left"></i></button>
+      <button class="carousel-btn carousel-next" id="carouselNext"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+    <div class="carousel-dots" id="carouselDots"></div>
+  </section>
+
   <hr>
 
   <footer class="bg-[var(--secondary-navy)] text-white py-16 mt-16"> 
@@ -560,6 +610,16 @@
       © <span id="year"></span> Tackle Sickle Cell Africa. All Rights Reserved.
     </p>
   </footer>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <span class="lightbox-counter" id="lightboxCounter"></span>
+    <button class="lightbox-close" id="lightboxClose"><i class="fa-solid fa-xmark"></i></button>
+    <button class="lightbox-nav lightbox-prev" id="lightboxPrev"><i class="fa-solid fa-chevron-left"></i></button>
+    <img class="lightbox-img" id="lightboxImg" src="" alt="">
+    <button class="lightbox-nav lightbox-next" id="lightboxNext"><i class="fa-solid fa-chevron-right"></i></button>
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+  </div>
 
   <script src="config.js"></script>
   <script src="js/app.js" defer></script>
