@@ -152,10 +152,39 @@
   }
   navBtns.forEach(b => b.addEventListener('click', () => navigate(b.dataset.nav)));
   window.__regNav = navigate; window.__regParticipants = renderParticipants; window.__regProfile = renderProfile; window.__regLogout = logout;
+  let currentView = 'dashboard';
+  let autoRefreshTimer = null;
+  const AUTO_REFRESH_INTERVAL = 30000;
+
+  const viewRenderers = {dashboard:renderDashboard,participants:renderParticipants,register:renderRegister,screening:renderScreening,events:renderEvents,reports:renderReports,'admin-users':renderAdminUsers,'pending-review':renderPendingReview,'registrations':renderRegistrations,'screening-requests':renderScreeningRequests};
+
   function navigate(view) {
+    currentView = view;
     navBtns.forEach(b => b.classList.toggle('active', b.dataset.nav === view));
-    ({dashboard:renderDashboard,participants:renderParticipants,register:renderRegister,screening:renderScreening,events:renderEvents,reports:renderReports,'admin-users':renderAdminUsers,'pending-review':renderPendingReview,'registrations':renderRegistrations,'screening-requests':renderScreeningRequests})[view]?.();
+    viewRenderers[view]?.();
+    startAutoRefresh();
   }
+
+  function refreshCurrentView() {
+    if (viewRenderers[currentView]) viewRenderers[currentView]();
+  }
+
+  function startAutoRefresh() {
+    if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+    autoRefreshTimer = setInterval(refreshCurrentView, AUTO_REFRESH_INTERVAL);
+  }
+
+  // Cross-tab sync via BroadcastChannel
+  let broadcast;
+  try { broadcast = new BroadcastChannel('tsca-registry-sync'); } catch(e) {}
+  if (broadcast) {
+    broadcast.onmessage = function(e) {
+      if (e.data && e.data.type === 'DATA_CHANGED') refreshCurrentView();
+    };
+  }
+  window.__regBroadcastChange = function() {
+    if (broadcast) broadcast.postMessage({ type: 'DATA_CHANGED' });
+  };
   function esc(v) { return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
   function fmtDate(d) { return d ? new Date(d).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}) : '\u2014'; }
   function gBadge(g) { return '<span class="badge badge-'+esc(g)+'">'+esc(g)+'</span>'; }
@@ -255,7 +284,7 @@
       +'<div class="form-actions"><button type="submit" class="btn-primary" id="regSubmitBtn">Register Participant</button>'
       +'<button type="button" class="btn-secondary" onclick="window.__regNav(\'participants\')">Cancel</button></div></form></div>';
     document.getElementById('partAge')?.addEventListener('input',function(){document.getElementById('guardianSection').classList.toggle('show',parseInt(this.value)<18&&parseInt(this.value)>=0);});
-    document.getElementById('registerForm').addEventListener('submit',async e=>{e.preventDefault();const btn=document.getElementById('regSubmitBtn');btn.disabled=true;btn.textContent='Registering...';try{const payload=Object.fromEntries(new FormData(e.target).entries());if(!payload.age)delete payload.age;const res=await api('/registry/participants',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});document.getElementById('regAlert').innerHTML='<div class="reg-alert reg-alert-success">Registered! TSCA ID: <strong>'+esc(res.data.tsca_id)+'</strong></div>';e.target.reset();setTimeout(()=>window.__regProfile(res.data.id),1500);}catch(err){document.getElementById('regAlert').innerHTML='<div class="reg-alert reg-alert-error">'+esc(err.message)+'</div>';}finally{btn.disabled=false;btn.textContent='Register Participant';}});
+    document.getElementById('registerForm').addEventListener('submit',async e=>{e.preventDefault();const btn=document.getElementById('regSubmitBtn');btn.disabled=true;btn.textContent='Registering...';try{const payload=Object.fromEntries(new FormData(e.target).entries());if(!payload.age)delete payload.age;const res=await api('/registry/participants',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});document.getElementById('regAlert').innerHTML='<div class="reg-alert reg-alert-success">Registered! TSCA ID: <strong>'+esc(res.data.tsca_id)+'</strong></div>';e.target.reset();window.__regBroadcastChange();setTimeout(()=>window.__regProfile(res.data.id),1500);}catch(err){document.getElementById('regAlert').innerHTML='<div class="reg-alert reg-alert-error">'+esc(err.message)+'</div>';}finally{btn.disabled=false;btn.textContent='Register Participant';}});
   }
   async function renderScreening() {
     mainContent.innerHTML='<div class="reg-loading">Loading...</div>';
@@ -275,7 +304,7 @@
       +'<div class="form-group full"><label>Counselor Notes</label><textarea name="counselor_notes" rows="2"></textarea></div>'
       +'</div><div class="form-actions"><button type="submit" class="btn-primary" id="scrSubmitBtn">Save Screening</button></div></form></div>';
     mainContent.innerHTML=h;
-    document.getElementById('screeningForm').addEventListener('submit',async e=>{e.preventDefault();const btn=document.getElementById('scrSubmitBtn');btn.disabled=true;btn.textContent='Saving...';try{const payload=Object.fromEntries(new FormData(e.target).entries());if(!payload.event_id)delete payload.event_id;const pid=payload.participant_id;delete payload.participant_id;const res=await api('/registry/participants/'+pid+'/screenings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});document.getElementById('scrAlert').innerHTML='<div class="reg-alert reg-alert-success">Screening recorded! ID: '+res.data.id+'</div>';e.target.reset();}catch(err){document.getElementById('scrAlert').innerHTML='<div class="reg-alert reg-alert-error">'+esc(err.message)+'</div>';}finally{btn.disabled=false;btn.textContent='Save Screening';}});
+    document.getElementById('screeningForm').addEventListener('submit',async e=>{e.preventDefault();const btn=document.getElementById('scrSubmitBtn');btn.disabled=true;btn.textContent='Saving...';try{const payload=Object.fromEntries(new FormData(e.target).entries());if(!payload.event_id)delete payload.event_id;const pid=payload.participant_id;delete payload.participant_id;const res=await api('/registry/participants/'+pid+'/screenings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});document.getElementById('scrAlert').innerHTML='<div class="reg-alert reg-alert-success">Screening recorded! ID: '+res.data.id+'</div>';e.target.reset();window.__regBroadcastChange();}catch(err){document.getElementById('scrAlert').innerHTML='<div class="reg-alert reg-alert-error">'+esc(err.message)+'</div>';}finally{btn.disabled=false;btn.textContent='Save Screening';}});
     }catch(e){mainContent.innerHTML='<div class="reg-alert reg-alert-error">'+esc(e.message)+'</div>';}
   }
   async function renderProfile(id) {
@@ -314,7 +343,7 @@
       +'<div class="form-group full"><label>Counseling Notes</label><textarea name="counselor_notes" rows="2"></textarea></div>'
       +'<div class="form-group"><label>Next Follow-up Date</label><input name="next_follow_up_date" type="date"></div>'
       +'</div><div class="form-actions"><button type="submit" class="btn-primary">Save Follow-up</button><button type="button" class="btn-secondary" onclick="window.__regProfile('+pid+')">Cancel</button></div></form></div>';
-    document.getElementById('followUpForm').addEventListener('submit',async e=>{e.preventDefault();try{const payload=Object.fromEntries(new FormData(e.target).entries());payload.referral_needed=payload.referral_needed==='true';await api('/registry/participants/'+pid+'/follow-ups',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});document.getElementById('fuAlert').innerHTML='<div class="reg-alert reg-alert-success">Follow-up saved!</div>';setTimeout(()=>window.__regProfile(pid),1000);}catch(err){document.getElementById('fuAlert').innerHTML='<div class="reg-alert reg-alert-error">'+esc(err.message)+'</div>';}});
+    document.getElementById('followUpForm').addEventListener('submit',async e=>{e.preventDefault();try{const payload=Object.fromEntries(new FormData(e.target).entries());payload.referral_needed=payload.referral_needed==='true';await api('/registry/participants/'+pid+'/follow-ups',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});document.getElementById('fuAlert').innerHTML='<div class="reg-alert reg-alert-success">Follow-up saved!</div>';window.__regBroadcastChange();setTimeout(()=>window.__regProfile(pid),1000);}catch(err){document.getElementById('fuAlert').innerHTML='<div class="reg-alert reg-alert-error">'+esc(err.message)+'</div>';}});
   };
   async function renderEvents() {
     mainContent.innerHTML='<div class="reg-loading">Loading events...</div>';
@@ -334,7 +363,7 @@
       +'<div class="form-group"><label>Partners</label><input name="partners" placeholder="e.g. UNICEF, WHO"></div>'
       +'<div class="form-group full"><label>Description</label><textarea name="description" rows="2"></textarea></div>'
       +'</div><div class="form-actions"><button type="submit" class="btn-primary">Create Event</button><button type="button" class="btn-secondary" onclick="window.__regNav(\'events\')">Cancel</button></div></form></div>';
-    document.getElementById('eventForm').addEventListener('submit',async e=>{e.preventDefault();try{const payload=Object.fromEntries(new FormData(e.target).entries());await api('/registry/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});document.getElementById('evtAlert').innerHTML='<div class="reg-alert reg-alert-success">Event created!</div>';e.target.reset();setTimeout(()=>window.__regNav('events'),1000);}catch(err){document.getElementById('evtAlert').innerHTML='<div class="reg-alert reg-alert-error">'+esc(err.message)+'</div>';}});
+    document.getElementById('eventForm').addEventListener('submit',async e=>{e.preventDefault();try{const payload=Object.fromEntries(new FormData(e.target).entries());await api('/registry/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});document.getElementById('evtAlert').innerHTML='<div class="reg-alert reg-alert-success">Event created!</div>';e.target.reset();window.__regBroadcastChange();setTimeout(()=>window.__regNav('events'),1000);}catch(err){document.getElementById('evtAlert').innerHTML='<div class="reg-alert reg-alert-error">'+esc(err.message)+'</div>';}});
   };
   async function renderPendingReview() {
     mainContent.innerHTML='<div class="reg-loading">Loading pending reviews...</div>';
@@ -348,7 +377,7 @@
     h+='</div>';mainContent.innerHTML=h;}catch(e){mainContent.innerHTML='<div class="reg-alert reg-alert-error">'+esc(e.message)+'</div>';}
   }
   window.__regReviewScreening = async function(id,status) {
-    try{await api('/registry/screenings/'+id+'/review',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({review_status:status})});renderPendingReview();}catch(e){alert('Review failed: '+e.message);}
+    try{await api('/registry/screenings/'+id+'/review',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({review_status:status})});window.__regBroadcastChange();renderPendingReview();}catch(e){alert('Review failed: '+e.message);}
   };
   async function renderAdminUsers() {
     mainContent.innerHTML='<div class="reg-loading">Loading users...</div>';
@@ -368,14 +397,14 @@
       +'<div class="form-group"><label>Password <span class="required">*</span></label><div class="pw-wrap"><input name="password" type="password" required minlength="6"><button type="button" class="pw-toggle" onclick="togglePw(this.previousElementSibling,this)"><i class="fa-solid fa-eye"></i></button></div></div>'
       +'<div class="form-group"><label>Role <span class="required">*</span></label><select name="role" required><option value="">Select...</option><option value="DATA_ENTRY">Data Entry</option><option value="SUPERVISOR">Supervisor</option><option value="ADMINISTRATOR">Administrator</option></select></div>'
       +'</div><div class="form-actions"><button type="submit" class="btn-primary">Create User</button><button type="button" class="btn-secondary" onclick="window.__regNav(\'admin-users\')">Cancel</button></div></form></div>';
-    document.getElementById('userForm').addEventListener('submit',async e=>{e.preventDefault();try{const payload=Object.fromEntries(new FormData(e.target).entries());await api('/registry/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});document.getElementById('userAlert').innerHTML='<div class="reg-alert reg-alert-success">User created!</div>';setTimeout(()=>window.__regNav('admin-users'),1000);}catch(err){document.getElementById('userAlert').innerHTML='<div class="reg-alert reg-alert-error">'+esc(err.message)+'</div>';}});
+    document.getElementById('userForm').addEventListener('submit',async e=>{e.preventDefault();try{const payload=Object.fromEntries(new FormData(e.target).entries());await api('/registry/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});document.getElementById('userAlert').innerHTML='<div class="reg-alert reg-alert-success">User created!</div>';window.__regBroadcastChange();setTimeout(()=>window.__regNav('admin-users'),1000);}catch(err){document.getElementById('userAlert').innerHTML='<div class="reg-alert reg-alert-error">'+esc(err.message)+'</div>';}});
   };
   window.__regToggleUser = async function(id,status) {
-    try{const action=status==='ACTIVE'?'disable':'enable';await api('/registry/users/'+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:id})});renderAdminUsers();}catch(e){alert('Failed: '+e.message);}
+    try{const action=status==='ACTIVE'?'disable':'enable';await api('/registry/users/'+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:id})});window.__regBroadcastChange();renderAdminUsers();}catch(e){alert('Failed: '+e.message);}
   };
   window.__regDeleteUser = async function(id) {
     if(!confirm('Delete this user?'))return;
-    try{await api('/registry/users/'+id,{method:'DELETE'});renderAdminUsers();}catch(e){alert('Failed: '+e.message);}
+    try{await api('/registry/users/'+id,{method:'DELETE'});window.__regBroadcastChange();renderAdminUsers();}catch(e){alert('Failed: '+e.message);}
   };
   async function renderRegistrations(page) {
     page=page||1; mainContent.innerHTML='<div class="reg-loading">Loading registrations...</div>';
@@ -401,7 +430,7 @@
   window.__regRegistrations = renderRegistrations;
   window.__regDeleteRegistration = async function(id) {
     if(!confirm('Delete this registration?'))return;
-    try{await api('/registry/'+id,{method:'DELETE'});renderRegistrations();}catch(e){alert('Failed: '+e.message);}
+    try{await api('/registry/'+id,{method:'DELETE'});window.__regBroadcastChange();renderRegistrations();}catch(e){alert('Failed: '+e.message);}
   };
   async function renderScreeningRequests(page) {
     page=page||1; mainContent.innerHTML='<div class="reg-loading">Loading screening requests...</div>';
@@ -443,26 +472,26 @@
   window.__regScreeningRequests = renderScreeningRequests;
   window.__regConfirmRequest = async function(id) {
     if(!confirm('Confirm this request? A participant record will be created automatically.'))return;
-    try{await api('/registry/screening-requests/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'confirm'})});renderScreeningRequests();}catch(e){alert('Failed: '+e.message);}
+    try{await api('/registry/screening-requests/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'confirm'})});window.__regBroadcastChange();renderScreeningRequests();}catch(e){alert('Failed: '+e.message);}
   };
   window.__regUpdateRequestStatus = async function(id,status) {
-    try{await api('/registry/screening-requests/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:status})});renderScreeningRequests();}catch(e){alert('Failed: '+e.message);}
+    try{await api('/registry/screening-requests/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:status})});window.__regBroadcastChange();renderScreeningRequests();}catch(e){alert('Failed: '+e.message);}
   };
   window.__regDeleteRequest = async function(id) {
     if(!confirm('Delete this request?'))return;
-    try{await api('/registry/screening-requests/'+id,{method:'DELETE'});renderScreeningRequests();}catch(e){alert('Failed: '+e.message);}
+    try{await api('/registry/screening-requests/'+id,{method:'DELETE'});window.__regBroadcastChange();renderScreeningRequests();}catch(e){alert('Failed: '+e.message);}
   };
   window.__regDeleteParticipant = async function(id) {
     if(!confirm('Delete this participant and all their screenings/follow-ups?'))return;
-    try{await api('/registry/participants/'+id,{method:'DELETE'});renderParticipants();}catch(e){alert('Failed: '+e.message);}
+    try{await api('/registry/participants/'+id,{method:'DELETE'});window.__regBroadcastChange();renderParticipants();}catch(e){alert('Failed: '+e.message);}
   };
   window.__regDeleteEvent = async function(id) {
     if(!confirm('Delete this event?'))return;
-    try{await api('/registry/events/'+id,{method:'DELETE'});renderEvents();}catch(e){alert('Failed: '+e.message);}
+    try{await api('/registry/events/'+id,{method:'DELETE'});window.__regBroadcastChange();renderEvents();}catch(e){alert('Failed: '+e.message);}
   };
   window.__regDeleteScreening = async function(id) {
     if(!confirm('Delete this screening?'))return;
-    try{await api('/registry/screenings/'+id,{method:'DELETE'});renderPendingReview();}catch(e){alert('Failed: '+e.message);}
+    try{await api('/registry/screenings/'+id,{method:'DELETE'});window.__regBroadcastChange();renderPendingReview();}catch(e){alert('Failed: '+e.message);}
   };
   async function renderReports() {
     mainContent.innerHTML='<div class="reg-loading">Loading reports...</div>';
