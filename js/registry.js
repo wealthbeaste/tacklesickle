@@ -74,7 +74,7 @@
   window.__regNav = navigate; window.__regParticipants = renderParticipants; window.__regProfile = renderProfile; window.__regLogout = logout;
   function navigate(view) {
     navBtns.forEach(b => b.classList.toggle('active', b.dataset.nav === view));
-    ({dashboard:renderDashboard,participants:renderParticipants,register:renderRegister,screening:renderScreening,events:renderEvents,reports:renderReports,'admin-users':renderAdminUsers,'pending-review':renderPendingReview})[view]?.();
+    ({dashboard:renderDashboard,participants:renderParticipants,register:renderRegister,screening:renderScreening,events:renderEvents,reports:renderReports,'admin-users':renderAdminUsers,'pending-review':renderPendingReview,'registrations':renderRegistrations})[view]?.();
   }
   function esc(v) { return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
   function fmtDate(d) { return d ? new Date(d).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}) : '\u2014'; }
@@ -93,9 +93,12 @@
     const loadAll = [api('/registry/participants/stats'), api('/registry/screenings/stats')];
     if (showFU) loadAll.push(api('/registry/follow-ups'));
     loadAll.push(api('/registry/reports/summary'));
+    if (currentUser && currentUser.role === 'ADMINISTRATOR') loadAll.push(api('/registry/stats'));
     Promise.all(loadAll).then(R => {
       const p=R[0].data, s=R[1].data; let fi=2;
       const f=showFU?R[fi++].data:{pending:0,referrals_needed:0}; const m=R[fi].data;
+      const isAdmin = currentUser && currentUser.role === 'ADMINISTRATOR';
+      const regStats = isAdmin && R[fi+1] ? R[fi+1].data : null;
       let h='<div class="section-header"><h2 style="margin:0">Dashboard</h2></div>'
         +'<div class="reg-card"><h2>Quick Actions</h2><div class="action-grid">'
         +'<button class="action-btn-reg" data-nav="register"><i class="fa-solid fa-user-plus"></i> Register Participant</button>'
@@ -111,6 +114,7 @@
         +'<div class="stat-box"><strong>'+m.events.total+'</strong><span>Events</span></div>'
         +'<div class="stat-box"><strong>'+p.minors+'</strong><span>Minors</span></div>'
         +'<div class="stat-box"><strong>'+p.registered_today+'</strong><span>Reg. Today</span></div>'
+        +(regStats?'<div class="stat-box" style="cursor:pointer" onclick="window.__regNav(\'registrations\')"><strong>'+regStats.total+'</strong><span>Public Signups</span></div>':'')
         +'</div></div>'
         +'<div class="reg-card"><h2>Result Distribution</h2>'
         +(s.total_screenings===0?'<div class="empty-state"><p>No screenings yet.</p></div>':resultBars(s))
@@ -289,6 +293,28 @@
     if(!confirm('Delete this user?'))return;
     try{await api('/registry/users/'+id,{method:'DELETE'});renderAdminUsers();}catch(e){alert('Failed: '+e.message);}
   };
+  async function renderRegistrations(page) {
+    page=page||1; mainContent.innerHTML='<div class="reg-loading">Loading registrations...</div>';
+    try{const q=document.getElementById('regSearchInput')?.value||'';const t=document.getElementById('regFilterType')?.value||'';
+    const params=new URLSearchParams({page:String(page),limit:'15'});if(q)params.set('search',q);if(t)params.set('subscription_type',t);
+    const res=await api('/registry?'+params);const items=res.data.items,pg=res.data.pagination;
+    let h='<div class="section-header"><h2 style="margin:0">Public Registrations</h2><button class="btn-secondary" onclick="window.__regNav(\'dashboard\')"><i class="fa-solid fa-arrow-left"></i> Back</button></div>'
+      +'<div class="reg-card"><div class="toolbar"><input id="regSearchInput" placeholder="Search name, email, registry number..." value="'+esc(q)+'">'
+      +'<select id="regFilterType"><option value="">All Types</option><option value="newsletter"'+(t==='newsletter'?' selected':'')+'>Newsletter</option><option value="volunteer"'+(t==='volunteer'?' selected':'')+'>Volunteer</option><option value="member"'+(t==='member'?' selected':'')+'>Member</option></select>'
+      +'<button onclick="window.__regRegistrations(1)">Search</button></div>';
+    h+='<div class="table-wrap"><table class="data-table"><thead><tr><th>Registry #</th><th>Name</th><th>Email</th><th>Phone</th><th>Type</th><th>Status</th><th>Date</th></tr></thead><tbody>';
+    items.forEach(r=>{h+='<tr><td><strong>'+esc(r.registry_number)+'</strong></td><td>'+esc(r.full_name)+'</td><td>'+esc(r.email)+'</td><td>'+esc(r.phone||'\u2014')+'</td><td><span class="badge badge-'+esc(r.subscription_type)+'">'+esc(r.subscription_type)+'</span></td><td><span class="badge badge-'+(r.status==='active'?'active':'inactive')+'">'+esc(r.status)+'</span></td><td>'+fmtDate(r.created_at)+'</td></tr>';});
+    h+='</tbody></table></div><div class="mobile-cards">';
+    items.forEach(r=>{h+='<div class="record-card"><div class="card-header"><div><span class="card-id">'+esc(r.registry_number)+'</span><div class="card-name">'+esc(r.full_name)+'</div></div><span class="badge badge-'+esc(r.subscription_type)+'">'+esc(r.subscription_type)+'</span></div><div class="card-meta"><span><i class="fa-solid fa-envelope"></i> '+esc(r.email)+'</span><span><i class="fa-solid fa-phone"></i> '+esc(r.phone||'\u2014')+'</span><span><i class="fa-solid fa-calendar"></i> '+fmtDate(r.created_at)+'</span></div></div>';});
+    if(!items.length)h+='<div class="empty-state"><p>No registrations found.</p></div>';h+='</div>';
+    if(pg.pages>1)h+='<div class="pagination"><button '+(pg.page<=1?'disabled':'')+' onclick="window.__regRegistrations('+(pg.page-1)+')">Prev</button><span>Page '+pg.page+' of '+pg.pages+' ('+pg.total+' total)</span><button '+(pg.page>=pg.pages?'disabled':'')+' onclick="window.__regRegistrations('+(pg.page+1)+')">Next</button></div>';
+    h+='</div>';mainContent.innerHTML=h;
+    document.getElementById('regSearchInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')window.__regRegistrations(1);});
+    document.getElementById('regFilterType')?.addEventListener('change',()=>window.__regRegistrations(1));
+    mainContent.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.nav)));
+    }catch(e){mainContent.innerHTML='<div class="reg-alert reg-alert-error">'+esc(e.message)+'</div>';}
+  }
+  window.__regRegistrations = renderRegistrations;
   async function renderReports() {
     mainContent.innerHTML='<div class="reg-loading">Loading reports...</div>';
     try{const[sumRes,distRes,demoRes,refRes]=await Promise.all([api('/registry/reports/summary'),api('/registry/reports/results'),api('/registry/reports/demographics'),api('/registry/reports/referrals')]);
