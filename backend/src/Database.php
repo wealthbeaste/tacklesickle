@@ -8,11 +8,11 @@ final class Database
 
 public function __construct()
 {
-    $host = getenv('DB_HOST') ?: getenv('PGHOST') ?: '127.0.0.1';
-    $port = getenv('DB_PORT') ?: getenv('PGPORT') ?: '5432';
-    $database = getenv('DB_NAME') ?: getenv('PGDATABASE') ?: 'tsca_registry';
-    $username = getenv('DB_USER') ?: getenv('PGUSER') ?: 'tsca_admin';
-    $password = getenv('DB_PASSWORD') ?: getenv('PGPASSWORD') ?: '';
+    $host = getenv('PGHOST') ?: getenv('DB_HOST') ?: '127.0.0.1';
+    $port = getenv('PGPORT') ?: getenv('DB_PORT') ?: '5432';
+    $database = getenv('PGDATABASE') ?: getenv('DB_NAME') ?: 'tsca_registry';
+    $username = getenv('PGUSER') ?: getenv('DB_USER') ?: 'tsca_admin';
+    $password = getenv('PGPASSWORD') ?: getenv('DB_PASSWORD') ?: '';
 
     $dsn = "pgsql:host={$host};port={$port};dbname={$database}";
 
