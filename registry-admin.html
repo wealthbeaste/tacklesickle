@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TSCA Sickle Cell Screening Registry</title>
+  <link rel="icon" href="images/logo.jpg" type="image/jpeg">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/registry.css">
+</head>
+<body>
+  <!-- Auth Screen -->
+  <div id="authScreen">
+    <div class="auth-card">
+      <h2><i class="fa-solid fa-droplet" style="color:var(--reg-accent)"></i> TSCA Registry</h2>
+      <p>Sickle Cell Screening Registry — Sign in with your account.</p>
+      <form id="authForm">
+        <div class="form-group" style="margin-bottom:14px">
+          <label>Username</label>
+          <input id="authUsername" type="text" placeholder="Enter your username" required autocomplete="username">
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+          <label>Password</label>
+          <div class="pw-wrap">
+            <input id="authPassword" type="password" placeholder="Enter your password" required autocomplete="current-password">
+            <button type="button" class="pw-toggle" onclick="togglePw(document.getElementById('authPassword'),this)"><i class="fa-solid fa-eye"></i></button>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%">Sign In</button>
+      </form>
+      <div id="authStatus" class="reg-alert reg-alert-error hidden" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+  <!-- App Shell -->
+  <div id="appShell" class="reg-shell hidden">
+    <header class="reg-header">
+      <div class="reg-header-inner">
+        <h1><i class="fa-solid fa-droplet"></i> TSCA Screening Registry</h1>
+        <nav class="reg-header-nav">
+          <button data-nav="dashboard" class="active"><i class="fa-solid fa-gauge"></i> Dashboard</button>
+          <button data-nav="participants"><i class="fa-solid fa-users"></i> Participants</button>
+          <button data-nav="register"><i class="fa-solid fa-user-plus"></i> Register</button>
+          <button data-nav="screening"><i class="fa-solid fa-flask"></i> Screening</button>
+          <button data-nav="events"><i class="fa-solid fa-calendar"></i> Events</button>
+          <button data-nav="reports"><i class="fa-solid fa-chart-bar"></i> Reports</button>
+          <button data-nav="pending-review" data-min-role="SUPERVISOR"><i class="fa-solid fa-clipboard-check"></i> Reviews</button>
+          <button data-nav="admin-users" data-min-role="ADMINISTRATOR"><i class="fa-solid fa-user-shield"></i> Users</button>
+        </nav>
+        <div class="reg-header-right">
+          <span id="roleIndicator" class="reg-role-badge"></span>
+          <span id="userBadge" class="reg-user-badge"></span>
+          <button class="btn-logout" onclick="window.__regLogout()" title="Logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+        </div>
+      </div>
+    </header>
+    <main class="reg-main">
+      <div id="mainContent"></div>
+    </main>
+  </div>
+
+  <script src="js/registry.js" defer></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(reg => {
+        console.log('SW registered:', reg.scope);
+      }).catch(err => console.log('SW registration failed:', err));
+    }
+  </script>
+</body>
+</html>
