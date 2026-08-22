@@ -1,6 +1,7 @@
 // TSCA Registry Service Worker
-const CACHE_NAME = 'tsca-registry-v1';
+const CACHE_NAME = 'tsca-registry-v2';
 const OFFLINE_URLS = [
+  '/config.js',
   '/registry-admin.html',
   '/css/registry.css',
   '/css/styles.css',
